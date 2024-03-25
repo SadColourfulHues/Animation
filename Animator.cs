@@ -17,26 +17,47 @@ public sealed class Animator
 
     #region Setters
 
-    public void SetTimeScale(StringName key, float scale) {
+    public void SetTimeScale(string key, float scale) {
         _tree.Set(key, scale);
     }
 
-    public void SetBlend(StringName key, float position) {
+    public void SetBlend(string key, float position) {
         _tree.Set(key, position);
     }
 
-    public void SetBlend(StringName key, Vector2 position) {
+    public void SetBlend(string key, Vector2 position) {
         _tree.Set(key, position);
     }
 
     public void SetOneShot(
-        StringName key,
+        string key,
         AnimationNodeOneShot.OneShotRequest request)
     {
         _tree.Set(key, (int) request);
     }
 
-    public void SetState(StringName key, string value) {
+    /// <summary>
+    /// Shorthand for SetOneShot([key], AnimationNodeOneShot.OneShotRequest.Fire)
+    /// </summary>
+    public void OneShotFire(string key) {
+        _tree.Set(key, (int) AnimationNodeOneShot.OneShotRequest.Fire);
+    }
+
+    /// <summary>
+    /// Shorthand for SetOneShot([key], AnimationNodeOneShot.OneShotRequest.Abort)
+    /// </summary>
+    public void OneShotStop(string key) {
+        _tree.Set(key, (int) AnimationNodeOneShot.OneShotRequest.Abort);
+    }
+
+    /// <summary>
+    /// Shorthand for SetOneShot([key], AnimationNodeOneShot.OneShotRequest.FadeOut)
+    /// </summary>
+    public void OneShotFadeOut(string key) {
+        _tree.Set(key, (int) AnimationNodeOneShot.OneShotRequest.FadeOut);
+    }
+
+    public void SetState(string key, string value) {
         _tree.Set(key, value);
     }
 
@@ -44,20 +65,20 @@ public sealed class Animator
 
     #region Blenders
 
-    public void BlendFloat(StringName key, float value, float fac) {
+    public void BlendFloat(string key, float value, float fac) {
         _tree.Set(key, Mathf.Lerp((float) _tree.Get(key), value, fac));
     }
 
-    public void BlendPosition(StringName key, Vector2 value, float fac) {
+    public void BlendPosition(string key, Vector2 value, float fac) {
         _tree.Set(key, ((Vector2) _tree.Get(key)).Lerp(value, fac));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void BlendTimeScale(StringName key, float scale, float fac)
+    public void BlendTimeScale(string key, float scale, float fac)
         => BlendFloat(key, scale, fac);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void BlendInterpolated(StringName key, float position, float fac)
+    public void BlendInterpolated(string key, float position, float fac)
         => BlendFloat(key, position, fac);
 
     #endregion
@@ -72,37 +93,79 @@ public sealed class Animator
         return (AnimationNodeStateMachinePlayback) _tree.Get("parameters/playback");
     }
 
+    /// <summary>
+    /// Returns an animation node in a blend tree.
+    /// (Will return null if the root node is not a blend tree, or if the node in question does not exist.)
+    /// </summary>
+    /// <param name="nodeName">The name of the node in the blend tree.</param>
+    /// <param name="node">An AnimationNode variable to write the node to.</param>
+    /// <returns></returns>
+    public bool GetBlendTreeNode(string nodeName, out AnimationNode node)
+    {
+        if (_tree?.TreeRoot is not AnimationNodeBlendTree root ||
+            !root.HasNode(nodeName))
+        {
+            node = null;
+            return false;
+        }
+
+        node = root.GetNode(nodeName);
+        return true;
+    }
+
+    /// <summary>
+    /// Returns an animation node in a blend tree.
+    /// (Will return null if the root node is not a blend tree, or if the node in question does not exist.)
+    /// </summary>
+    /// <param name="nodeName">The name of the node in the blend tree.</param>
+    /// <param name="node">An AnimationNode variable to write the node to.</param>
+    /// <returns></returns>
+    public bool GetBlendTreeNode<T>(string nodeName, out T node)
+        where T: AnimationNode
+    {
+        if (_tree?.TreeRoot is not AnimationNodeBlendTree root ||
+            !root.HasNode(nodeName) ||
+            root.GetNode(nodeName) is not T treeNode)
+        {
+            node = null;
+            return false;
+        }
+
+        node = treeNode;
+        return true;
+    }
+
     #endregion
 
     #region Key Getters
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static StringName GetKeyBlendPosition(string keyName) {
+    public static string GetKeyBlendPosition(string keyName) {
         return $"parameters/{keyName}/blend_position";
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static StringName GetKeyBlendAmount(string keyName) {
+    public static string GetKeyBlendAmount(string keyName) {
         return $"parameters/{keyName}/blend_amount";
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static StringName GetKeyTimeScale(string keyName) {
+    public static string GetKeyTimeScale(string keyName) {
         return $"parameters/{keyName}/scale";
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static StringName GetKeyTransition(string keyName) {
+    public static string GetKeyTransition(string keyName) {
         return $"parameters/{keyName}/transition_request";
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static StringName GetKeyPlayback(string keyName) {
+    public static string GetKeyPlayback(string keyName) {
         return $"parameters/{keyName}/playback";
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static StringName GetKeyOneShot(string keyName) {
+    public static string GetKeyOneShot(string keyName) {
         return $"parameters/{keyName}/request";
     }
 
