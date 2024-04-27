@@ -86,6 +86,34 @@ public sealed class Animator
     #region Getters
 
     /// <summary>
+    /// Returns the current animation's root motion offset and rotation relative to a given 3D node.
+    /// </summary>
+    public RootMotionInfo GetRootMotion(Node3D relativeTo)
+    {
+        Quaternion rotation = relativeTo.Quaternion * _tree.GetRootMotionRotation();
+        Vector3 offset = rotation * _tree.GetRootMotionPosition();
+
+        return new(offset, rotation.GetEuler(relativeTo.RotationOrder));
+    }
+
+    /// <summary>
+    /// Returns the current animation's root motion offset and rotation relative to a given 3D node.
+    /// <para>
+    /// (This variant restricts rotation around the Y-axis.)
+    /// </para>
+    /// </summary>
+    public RootMotionInfo GetRootMotionY(Node3D relativeTo)
+    {
+        Quaternion rotation = relativeTo.Quaternion * _tree.GetRootMotionRotation();
+        Vector3 offset = rotation * _tree.GetRootMotionPosition();
+
+        Vector3 rotationEuler = relativeTo.Rotation;
+        rotationEuler.Y = rotation.GetEuler(relativeTo.RotationOrder).Y;
+
+        return new(offset, rotationEuler);
+    }
+
+    /// <summary>
     /// Must only be called on a wrapped AnimationTree with a state machine as its root.
     /// </summary>
     /// <returns></returns>
@@ -167,6 +195,22 @@ public sealed class Animator
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string GetKeyOneShot(string keyName) {
         return $"parameters/{keyName}/request";
+    }
+
+    #endregion
+
+    #region Structs
+
+    public readonly struct RootMotionInfo
+    {
+        public readonly Vector3 Offset;
+        public readonly Vector3 Rotation;
+
+        public RootMotionInfo(Vector3 offset, Vector3 rotation)
+        {
+            Offset = offset;
+            Rotation = rotation;
+        }
     }
 
     #endregion
