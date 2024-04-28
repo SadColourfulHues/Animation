@@ -165,6 +165,16 @@ public sealed class Animator
 
     #endregion
 
+    #region Indexer
+
+    public Variant this[string key]
+    {
+        get => _tree.Get(key);
+        set => _tree.Set(key, value);
+    }
+
+    #endregion
+
     #region Key Getters
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
