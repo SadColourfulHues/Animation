@@ -5,7 +5,7 @@ using SadChromaLib.Utils.Random;
 namespace SadChromaLib.Animation;
 
 /// <summary> A utility object that can generate 'shaking' of varying intensities. </summary>
-public sealed partial class Shaker2D : RefCounted
+public sealed partial class Shaker2D
 {
 	private ShakerType _type;
 	private ShakerMethod _method;
@@ -124,7 +124,7 @@ public sealed partial class Shaker2D : RefCounted
 
 	#region Configurators
 
-	/// <summary> Returns a RefCounted of the shaker's noise generator. (Use this to configure its properties.) </summary>
+	/// <summary> Returns a reference of the shaker's noise generator. (Use this to configure its properties.) </summary>
 	public FastNoiseLite GetNoiseGenerator()
 	{
 		return _noiseGenerator;
